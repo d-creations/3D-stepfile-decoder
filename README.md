@@ -15,3 +15,7 @@ use jar file
 ## How to use
 example 
 https://github.com/d-creations/JAVA_AP242_VIEWER
+
+## About me 
+d-creations.org
+
