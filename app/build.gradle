@@ -24,7 +24,10 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.8.1'
 }
 
-
+application {
+    // Define the main class for the application.
+    mainClass = 'Example'
+}
 
 tasks.named('test') {
     // Use JUnit Platform for unit tests.
