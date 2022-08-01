@@ -4,6 +4,8 @@
     <root id="root">
       <element id="archive" name="3D_stepfile_Decoder_app_main.jar">
         <element id="module-output" name="3D-stepfile-Decoder.app.main" />
+        <element id="file-copy" path="$PROJECT_DIR$/LICENSE" />
+        <element id="file-copy" path="$PROJECT_DIR$/README.md" />
       </element>
     </root>
   </artifact>
