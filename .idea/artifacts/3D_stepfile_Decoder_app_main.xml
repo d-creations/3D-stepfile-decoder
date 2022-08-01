@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jpackage" name="3D-stepfile-Decoder.app.main">
+    <output-path>$PROJECT_DIR$/out/artifacts/3D_stepfile_Decoder_app_main</output-path>
+    <root id="root">
+      <element id="archive" name="3D_stepfile_Decoder_app_main.jar">
+        <element id="module-output" name="3D-stepfile-Decoder.app.main" />
+      </element>
+    </root>
+  </artifact>
+</component>
