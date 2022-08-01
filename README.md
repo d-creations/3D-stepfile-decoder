@@ -1,6 +1,8 @@
 # 3D-step-file-decoder
 Decodes 3D step files ISO 10303 (AP) to a Mesh view of Javafx
 
+### First Version still under cunstruction ### 
+
 ## Miscellaneous
 - This project was developed, built & tested on openJDK17.
 
