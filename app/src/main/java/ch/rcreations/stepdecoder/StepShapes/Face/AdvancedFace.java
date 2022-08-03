@@ -10,6 +10,7 @@ import ch.rcreations.stepdecoder.StepShapes.FaceBoundLoop.Edge.OrientedEdge;
 import ch.rcreations.stepdecoder.StepShapes.FaceBoundLoop.FaceBound;
 import ch.rcreations.stepdecoder.StepShapes.Point.CartesianPoint;
 import ch.rcreations.stepdecoder.StepShapes.StepShapes;
+import ch.rcreations.stepdecoder.StepShapes.Surfaces.ConicalSurface;
 import ch.rcreations.stepdecoder.StepShapes.Surfaces.CylindricalSurface;
 import ch.rcreations.stepdecoder.StepShapes.Surfaces.SphericalSurface;
 import ch.rcreations.stepdecoder.StepShapes.Surfaces.Surface;
@@ -37,8 +38,31 @@ public class AdvancedFace extends FaceSurface {
                     }
                 }
             }
+            case CONICAL_SURFACE -> {
+                for (FaceBound faceB : getFaceBound()) {
+                    for (Edge edge : faceB.getEdgeLoop().getOrientedEdges()) {
+                        renderACone(((ConicalSurface)faceGeometrie).getPosition(),((ConicalSurface)faceGeometrie).getRadius(),((ConicalSurface)faceGeometrie).getSemiAngle(),edge);
+                    }
+                }
+            }
         }
     }
+
+    private void renderACone(Axis2Placement3D position,double radius,double semiAngle,Edge edge) {
+        // Place the Axis
+        Direction axis = position.getAxis();
+        Direction firstDirectionE = position.getFirstDirection();
+        Direction secondDirectionE = position.getSecondDirection();
+        IncrementalPointsD startPoint = getCoordinatesInNewBasis(edge.getStartX(), edge.getStartY(), edge.getStartZ(), firstDirectionE, secondDirectionE, axis);
+        IncrementalPointsD endPoint = getCoordinatesInNewBasis(edge.getEndX(), edge.getEndY(), edge.getEndZ(), firstDirectionE, secondDirectionE, axis);
+        double distance = Math.sqrt((endPoint.x()-startPoint.x())*(endPoint.x()-startPoint.x())+(endPoint.y()-startPoint.y())*(endPoint.y()-startPoint.y())+(endPoint.z()-startPoint.z())*(endPoint.z()-startPoint.z()));
+        StepConfig.printMessage(distance+"");
+        double upRadius = radius+ (Math.asin(semiAngle)*distance);
+        StepConfig.printMessage(radius+"");
+        int countLayers = 0; // count Layer if it is a surface like a ball // used in render Spherical Surface
+        CreateAZylinderWithTriangles(radius, position, StepConfig.COUNTTRIANGLEPERLAYER, radius,upRadius, -startPoint.y(), -endPoint.y(), countLayers);
+    }
+
     private void renderACylinder(double radius, Axis2Placement3D position, Edge edge) {
         // Place the Axis
         Direction axis = position.getAxis();
@@ -178,8 +202,8 @@ public class AdvancedFace extends FaceSurface {
         Direction firstDirectionE = position.getFirstDirection();
         Direction secondDirectionE = position.getSecondDirection();
         for (int y = 0; y < countTrianglePerLayer; y++) {
-            double layerCircumferenceSequenzUP = (2 * Math.PI * radius) / countTrianglePerLayer;//      A    D
-            double layerCircumferenceSequenzDown = (2 * Math.PI * radius) / countTrianglePerLayer;// B /\/ C
+            double layerCircumferenceSequenzUP = (2 * Math.PI * layerRadiusUP) / countTrianglePerLayer;//      A    D
+            double layerCircumferenceSequenzDown = (2 * Math.PI * layerRadiusDown) / countTrianglePerLayer;// B /\/ C
             double pointA = (layerCircumferenceSequenzUP / 2) * (indexIfCylinder % 2) + y * layerCircumferenceSequenzUP;
             double pointD = (layerCircumferenceSequenzUP / 2) * (indexIfCylinder % 2) + (y + 1) * layerCircumferenceSequenzUP;
             double pointB = -(layerCircumferenceSequenzDown / 2) * ((indexIfCylinder + 1) % 2) + layerCircumferenceSequenzDown * y;
