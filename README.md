@@ -22,7 +22,7 @@ use jar file
 You will find a short Example at in this Project at
 [Short Example](app/src/main/java/Example.java)
 or one of my use cases
-[AP Viewer](https://github.com/d-creations/JAVA_AP242_VIEWER)
+[AP Viewer](https://github.com/d-creations/JAVA_AP_VIEWER)
 
 ## About me 
 d-creations.org
