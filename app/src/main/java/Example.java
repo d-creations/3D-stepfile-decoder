@@ -31,7 +31,7 @@ public class Example extends Application{
     public static void main(String[] args) throws URISyntaxException {
         // load a step-file
         ClassLoader classLoader = Example.class.getClassLoader();
-        URL resource = classLoader.getResource("Cone.step");
+        URL resource = classLoader.getResource("Cone3.step");
         assert resource != null;
         File file = new File(resource.toURI());
         try {
@@ -81,13 +81,14 @@ public class Example extends Application{
                 //shape.setDrawMode(DrawMode.FILL ); // Rotation not good wenn on
                 shape.setCache(true);
                 shape.setCacheHint(CacheHint.ROTATE);
-                shape.setTranslateX(200);
-                shape.setTranslateY(200);
+                shape.setTranslateX(300);
+                shape.setTranslateY(300);
                 shape.setMaterial(new PhongMaterial(Color.CORNFLOWERBLUE));
                 shape.setCullFace(CullFace.BACK);
-                shape.getTransforms().add(new Scale(2, 2));
+                shape.getTransforms().add(new Scale(1, 1));
                 rotateX.setAxis(new Point3D(1, 0, 0));
-                rotateY.setAxis(new Point3D(0, 1, 0));
+                rotateY.setAxis(new Point3D(1, 1, 0));
+
                 rotateX.setAngle(150);
                 rotateY.setAngle(30);
                 shape.getTransforms().add(rotateX);
