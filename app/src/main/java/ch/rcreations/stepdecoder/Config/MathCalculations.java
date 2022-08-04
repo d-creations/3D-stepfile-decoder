@@ -36,7 +36,8 @@ public class MathCalculations {
     }
 
     public static double getDistanceBetweenPoints(IncrementalPointsD startPoint, IncrementalPointsD endPoint) {
-        return Math.sqrt((endPoint.x() - startPoint.x()) * (endPoint.x() - startPoint.x()) + (endPoint.y() - startPoint.y()) * (endPoint.y() - startPoint.y()) + (endPoint.z() - startPoint.z()) * (endPoint.z() - startPoint.z()));
+        IncrementalPointsD newVector = new IncrementalPointsD(endPoint.x()-startPoint.x(), endPoint.y()-startPoint.y(),endPoint.z()-startPoint.z());
+        return Math.sqrt((newVector.x() * newVector.x()) + (newVector.y()*newVector.y()) + (newVector.z()*newVector.z()));
     }
 
     public static double distanceOfProjectionVectorAtoVecorB(IncrementalPointsD vectorA, IncrementalPointsD vectorB) {

@@ -32,7 +32,7 @@ public class AdvancedFace extends FaceSurface {
         preferencesMapList.add(preferencesMap);
         switch (faceGeometrie.getTyp()) {
             case PLANE -> renderPlan();
-         /*   case SPHERICAL_SURFACE ->
+           case SPHERICAL_SURFACE ->
                     renderSphericalSurface(((SphericalSurface) faceGeometrie).getRadius(), ((SphericalSurface) faceGeometrie).getPosition());
             case CYLINDRICAL_SURFACE -> {
                 for (FaceBound faceB : getFaceBound()) {
@@ -40,7 +40,7 @@ public class AdvancedFace extends FaceSurface {
                         renderACylinder(((CylindricalSurface) faceGeometrie).getRadius(), ((CylindricalSurface) faceGeometrie).getPosition(), edge);
                     }
                 }
-            }*/
+            }
             case CONICAL_SURFACE -> {
                 for (FaceBound faceB : getFaceBound()) {
                     for (Edge edge : faceB.getEdgeLoop().getOrientedEdges()) {
@@ -57,28 +57,26 @@ public class AdvancedFace extends FaceSurface {
         Direction firstDirectionE = position.getFirstDirection();
         Direction secondDirectionE = position.getSecondDirection();
         IncrementalPointsD center = new IncrementalPointsD(0.0,0.0,0.0);
+        IncrementalPointsD directionVektor = new IncrementalPointsD(firstDirectionE.getDirectionRatios().get(0),firstDirectionE.getDirectionRatios().get(1),firstDirectionE.getDirectionRatios().get(2));
         IncrementalPointsD positionPoint = new IncrementalPointsD(position.getLocation().getPoint().get(CartasianAxisE.X),position.getLocation().getPoint().get(CartasianAxisE.Y),position.getLocation().getPoint().get(CartasianAxisE.Z));
         IncrementalPointsD startPoint = new IncrementalPointsD(edge.getStartX(), edge.getStartY(), edge.getStartZ());
         IncrementalPointsD endPoint = new IncrementalPointsD(edge.getEndX(), edge.getEndY(), edge.getEndZ());
-        IncrementalPointsD startPointE = getCoordinatesInNewBasis(edge.getStartX(), edge.getStartY(), edge.getStartZ(),axis, firstDirectionE, secondDirectionE);
-        IncrementalPointsD endPointE = getCoordinatesInNewBasis(edge.getEndX(), edge.getEndY(), edge.getEndZ(),axis, firstDirectionE, secondDirectionE);
-        double distance = MathCalculations.getDistanceBetweenPoints(startPointE,endPointE);
-        StepConfig.printMessage(distance+"");
+        double distanceN = MathCalculations.distanceOfProjectionVectorAtoVecorB(directionVektor,endPoint)-MathCalculations.distanceOfProjectionVectorAtoVecorB(directionVektor,startPoint);
         double upRadius = 0;
         int countLayers = 0; // count Layer if it is a surface like a ball // used in render Spherical Surface
 
-        if (MathCalculations.getDistanceBetweenPoints(center,startPoint) > MathCalculations.getDistanceBetweenPoints(center,endPoint)) {
-            upRadius = radius;
-            radius = radius - (Math.asin(semiAngle) * distance);
+
+        StepConfig.printMessage(radius+" = radius");
+        if (distanceN>0) {
+            upRadius = radius + (Math.atan(semiAngle) * distanceN);
+            StepConfig.printMessage(upRadius+" = Upradius Plus");
             startPoint = startPoint;
-            CreateAZylinderWithTriangles( position, StepConfig.COUNTTRIANGLEPERLAYER, radius,upRadius , endPoint,startPoint, countLayers);
-
-
+            CreateAZylinderWithTriangles( position, StepConfig.COUNTTRIANGLEPERLAYER, radius,upRadius ,startPoint,endPoint, countLayers);
         }else {
-            upRadius = radius + (Math.asin(semiAngle) * distance);
+            upRadius = radius + (Math.atan(semiAngle) *distanceN);
             radius = radius;
-            CreateAZylinderWithTriangles( position, StepConfig.COUNTTRIANGLEPERLAYER, radius,upRadius,  startPoint, endPoint, countLayers);
-
+            StepConfig.printMessage(upRadius+" = Upradius Minus");
+            CreateAZylinderWithTriangles( position, StepConfig.COUNTTRIANGLEPERLAYER, upRadius,radius,endPoint,startPoint, countLayers);
         }
         StepConfig.printMessage(radius+"");
           }
@@ -97,7 +95,6 @@ public class AdvancedFace extends FaceSurface {
     /**
      * render a Spherical Surface with triangles
      * the resolution of the Triangles is set in the Config file
-     *
      * @param radius   radius of the ball
      * @param position position of the ball
      */
@@ -181,7 +178,6 @@ public class AdvancedFace extends FaceSurface {
     }
 
     private void DrawQuaderFace(Double x1, Double y1, Double z1, Double x2, Double y2, Double z2, Double x3, Double y3, Double z3, Double x4, Double y4, Double z4) {
-
         this.stepDrawLinesForTriangle.add(getCartesianPoint(x1, y1, z1));//p1   -1
         this.stepDrawLinesForTriangle.add(getCartesianPoint(x2, y2, z2));//p2    -2
         this.stepDrawLinesForTriangle.add(getCartesianPoint(x3, y3, z3));//p3      -END
@@ -271,8 +267,7 @@ public class AdvancedFace extends FaceSurface {
             drawTriangle(z1BasisN, z2BasisN, z3BasisN, x1BasisN, y1BasisN, x2BasisN, y2BasisN, x3BasisN, y3BasisN);
             // Triangle Opposite D B A
             drawTriangle(z3BasisN, z1BasisN, z4BasisN, x3BasisN, y3BasisN, x1BasisN, y1BasisN, x4BasisN, y4BasisN);
-
-        }
+            }
         }
     }
 
