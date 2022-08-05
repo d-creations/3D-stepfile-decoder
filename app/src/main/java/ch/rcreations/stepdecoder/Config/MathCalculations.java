@@ -52,4 +52,12 @@ public class MathCalculations {
     public static double distanceToPoint(IncrementalPointsD point) {
         return Math.sqrt(point.x() * point.x() + point.y() * point.y() + point.z() * point.z());
     }
+
+    public static IncrementalPointsD inverseVector(IncrementalPointsD startPoint) {
+        return new IncrementalPointsD(-startPoint.x(),-startPoint.y(),-startPoint.z());
+    }
+
+    public static IncrementalPointsD vectorAddition(IncrementalPointsD positionPoint, IncrementalPointsD axisVector) {
+        return new IncrementalPointsD(positionPoint.x()+axisVector.x(),positionPoint.y()+axisVector.y(),positionPoint.z()+axisVector.z());
+    }
 }
