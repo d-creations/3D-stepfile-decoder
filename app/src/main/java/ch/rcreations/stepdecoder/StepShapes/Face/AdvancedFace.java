@@ -18,14 +18,11 @@ import ch.rcreations.stepdecoder.StepShapes.Surfaces.SphericalSurface;
 import ch.rcreations.stepdecoder.StepShapes.Surfaces.Surface;
 import javafx.scene.control.TreeItem;
 import java.util.*;
-
 import static ch.rcreations.stepdecoder.Config.MathCalculations.*;
 import static ch.rcreations.stepdecoder.Config.MathCalculations.distanceOfProjectionVectorAtoVecorB;
-import static java.lang.Double.NaN;
 
 public class AdvancedFace extends FaceSurface {
 
-    static int  count = 0;
 
     public AdvancedFace(String name, Set<FaceBound> setOfFaces, Surface faceGeometrie, Boolean sameSense, int lineNumber) {
         super(name, setOfFaces, faceGeometrie, sameSense, lineNumber, AP242Code.ADVANCED_FACE);
@@ -65,23 +62,21 @@ public class AdvancedFace extends FaceSurface {
         IncrementalPointsD endPoint = new IncrementalPointsD(edge.getEndX(), edge.getEndY(), edge.getEndZ());
         double distanceN = MathCalculations.getDistanceBetweenPoints(endPoint,startPoint);
         int countLayers = 0; // count Layer if it is a surface like a ball // used in render Spherical Surface
-        IncrementalPointsD PAvector = MathCalculations.vectorSubstraction(startPoint,positionPoint);
-        double distanceToPAvector = MathCalculations.distanceToPoint(PAvector);
-        double lStart = MathCalculations.distanceOfProjectionVectorAtoVecorB(axisVector,PAvector);
-        PAvector = MathCalculations.vectorSubstraction(endPoint,positionPoint);
-        double distanceToPBvector = MathCalculations.distanceToPoint(PAvector);
-        double lEnd = MathCalculations.distanceOfProjectionVectorAtoVecorB(axisVector,PAvector);
-        Double PAl = Math.sqrt(distanceToPAvector*distanceToPAvector-lStart*lStart);
-        Double PBl = Math.sqrt(distanceToPBvector*distanceToPAvector-lStart*lStart);
+        IncrementalPointsD PAVector = MathCalculations.vectorSubstraction(startPoint,positionPoint);
+        double distanceToPAVector = MathCalculations.distanceToPoint(PAVector);
+        double lStart = MathCalculations.distanceOfProjectionVectorAtoVecorB(axisVector,PAVector);
+        PAVector = MathCalculations.vectorSubstraction(endPoint,positionPoint);
+        double distanceToPBvector = MathCalculations.distanceToPoint(PAVector);
+        double lEnd = MathCalculations.distanceOfProjectionVectorAtoVecorB(axisVector,PAVector);
+        Double PAl = Math.sqrt(distanceToPAVector*distanceToPAVector-lStart*lStart);
+        Double PBl = Math.sqrt(distanceToPBvector*distanceToPAVector-lStart*lStart);
         double direction = distanceToPoint(vectorAddition(positionPoint,directionVektor))-distanceToPoint(positionPoint);
         double directionAxis = distanceToPoint(vectorAddition(positionPoint,axisVector))-distanceToPoint(positionPoint);
         double directionSecond = distanceToPoint(vectorAddition(positionPoint,directionSecondVektor))-distanceToPoint(positionPoint);
         if (Math.abs(lStart-lEnd) > 0.1){
-            count++;
             PAl = PAl.isNaN() ? 99999999 : PAl;
             PBl = PBl.isNaN() ? 99999999 : PBl;
             if(PAl < PBl){
-
                 if (lStart<lEnd) {
                     CreateAZylinderWithTriangles(position, 1, StepConfig.COUNTTRIANGLEPERLAYER, lStart, lEnd, startPoint, endPoint, countLayers);
                 }else {
@@ -103,7 +98,7 @@ public class AdvancedFace extends FaceSurface {
 
                     }
                 }else {
-                        if ((directionAxis >=0 ) || distanceN < distanceToPAvector ) {
+                        if ((directionAxis >=0 ) || distanceN < distanceToPAVector ) {
                             CreateAZylinderWithTriangles(position, 1, StepConfig.COUNTTRIANGLEPERLAYER, lStart, lEnd, startPoint, endPoint, countLayers);
 
                         }else {
@@ -139,6 +134,9 @@ public class AdvancedFace extends FaceSurface {
         // Separate the Spherical in spherical layers Sektor    // h = höhe der Halbkugel  = a leg  r = hypotenuse
         int countLayers = StepConfig.COUNTLAYERS; // Half Spherical needs to be uneven
         int countTrianglePerLayer = StepConfig.COUNTTRIANGLEPERLAYER;
+        Direction firstDirectionE = position.getFirstDirection();
+        IncrementalPointsD directionVektor = new IncrementalPointsD(firstDirectionE.getDirectionRatios().get(0),firstDirectionE.getDirectionRatios().get(1),firstDirectionE.getDirectionRatios().get(2));
+
         //for each Layer calculate circumference
         for (int layer = 0; layer < countLayers; layer++) {
             double hLayerUP = radius * Math.cos(Math.toRadians(90.0 / countLayers * layer));
@@ -149,9 +147,11 @@ public class AdvancedFace extends FaceSurface {
             double distanceFromSphericalTopDown = (radius - hLayerDOWN);
             double aLegDown = radius - distanceFromSphericalTopDown;
             double layerRadiusDown = Math.sqrt(radius * radius - aLegDown * aLegDown);
-            CreateAZylinderWithTriangles(position,1, countTrianglePerLayer, layerRadiusUP, layerRadiusDown, new IncrementalPointsD(0.0,0.0,aLeg), new IncrementalPointsD(0.0,0.0,aLegDown), layer);
-            CreateAZylinderWithTriangles(position,1, countTrianglePerLayer, layerRadiusUP, layerRadiusDown,new IncrementalPointsD(0.0,0.0,-aLeg), new IncrementalPointsD(0.0,0.0,-aLegDown), layer);
-        }
+            IncrementalPointsD vectorRadiusUp = MathCalculations.vectorAddition(directionVektor,new IncrementalPointsD(0.0,0.0,aLeg));
+            IncrementalPointsD vectorRadiusDown = MathCalculations.vectorSubstraction(directionVektor,new IncrementalPointsD(0.0,0.0, aLegDown));
+            CreateAZylinderWithTriangles(position,1, countTrianglePerLayer, layerRadiusUP, layerRadiusDown, vectorRadiusUp, vectorRadiusDown, layer);
+            CreateAZylinderWithTriangles(position,-1, countTrianglePerLayer, layerRadiusUP, layerRadiusDown, vectorRadiusUp, vectorRadiusDown, layer);
+            }
     }
 
 
@@ -249,15 +249,13 @@ public class AdvancedFace extends FaceSurface {
      * @param indexIfCylinder       index of Layer if the Surface haves mor then 1 Cylinder
      */
     private void CreateAZylinderWithTriangles(Axis2Placement3D position,int direction, int countTrianglePerLayer, double layerRadiusUP, double layerRadiusDown, IncrementalPointsD start, IncrementalPointsD end, int indexIfCylinder) {
-        IncrementalPointsD center = new IncrementalPointsD(0,0.0,0);
-        IncrementalPointsD positionPoint = new IncrementalPointsD(position.getLocation().getPoint().get(CartasianAxisE.X),position.getLocation().getPoint().get(CartasianAxisE.Y),position.getLocation().getPoint().get(CartasianAxisE.Z));
         Direction axis = position.getAxis();
         Direction firstDirectionE = position.getFirstDirection();
         Direction secondDirectionE = position.getSecondDirection();
         IncrementalPointsD directionVektor = new IncrementalPointsD(firstDirectionE.getDirectionRatios().get(0),firstDirectionE.getDirectionRatios().get(1),firstDirectionE.getDirectionRatios().get(2));
-        if (MathCalculations.distanceToPoint(start)-MathCalculations.distanceToPoint(end)<0){
-        double z1 = direction*distanceOfProjectionVectorAtoVecorB(directionVektor,start);
-        double z2 = direction*distanceOfProjectionVectorAtoVecorB(directionVektor,end);
+
+        double z1 ;
+        double z2 ;
         if(direction==1){
              z1 = direction*distanceOfProjectionVectorAtoVecorB(directionVektor,start);
              z2 = direction*distanceOfProjectionVectorAtoVecorB(directionVektor,end);
@@ -265,7 +263,6 @@ public class AdvancedFace extends FaceSurface {
              z2 = direction*distanceOfProjectionVectorAtoVecorB(directionVektor,start);
              z1 = direction*distanceOfProjectionVectorAtoVecorB(directionVektor,end);
         }
-            StepConfig.printMessage("Z" + z1);
         for (int y = 0; y < countTrianglePerLayer; y++) {
             double layerCircumferenceSequenzUP = (2 * Math.PI * layerRadiusUP) / countTrianglePerLayer;//      A    D
             double layerCircumferenceSequenzDown = (2 * Math.PI * layerRadiusDown) / countTrianglePerLayer;// B /\/ C
@@ -299,7 +296,7 @@ public class AdvancedFace extends FaceSurface {
             // Triangle Opposite D B A
             drawTriangle(Basis3N.z(), Basis1N.z(),Basis4N.z(), Basis3N.x(), Basis3N.y(), Basis1N.x(), Basis1N.y(), Basis4N.x(), Basis4N.y());
             }
-        }
+
     }
 
     /**
