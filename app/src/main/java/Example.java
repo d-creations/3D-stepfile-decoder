@@ -86,8 +86,8 @@ public class Example extends Application{
                 shape.setMaterial(new PhongMaterial(Color.CORNFLOWERBLUE));
                 shape.setCullFace(CullFace.BACK);
                 shape.getTransforms().add(new Scale(1, 1));
-                rotateX.setAxis(new Point3D(0, 0, 0));
-                rotateY.setAxis(new Point3D(0, 1, 0));
+                rotateX.setAxis(new Point3D(1, 0, 0));
+                rotateY.setAxis(new Point3D(1, 1, 0));
 
                 rotateX.setAngle(150);
                 rotateY.setAngle(30);

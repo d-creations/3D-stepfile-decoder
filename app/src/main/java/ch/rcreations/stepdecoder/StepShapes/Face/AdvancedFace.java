@@ -56,7 +56,7 @@ public class AdvancedFace extends FaceSurface {
         Direction axis = position.getAxis();
         Direction firstDirectionE = position.getFirstDirection();
         Direction secondDirectionE = position.getSecondDirection();
-        IncrementalPointsD maxVektor = new IncrementalPointsD(99999999,99999999,99999999);
+        IncrementalPointsD maxVector = new IncrementalPointsD(999,999,999);
         IncrementalPointsD axisVector = new IncrementalPointsD(axis.getDirectionRatios().get(0),axis.getDirectionRatios().get(1),axis.getDirectionRatios().get(2));
         IncrementalPointsD directionVektor = new IncrementalPointsD(firstDirectionE.getDirectionRatios().get(0),firstDirectionE.getDirectionRatios().get(1),firstDirectionE.getDirectionRatios().get(2));
         IncrementalPointsD positionPoint = new IncrementalPointsD(position.getLocation().getPoint().get(CartasianAxisE.X),position.getLocation().getPoint().get(CartasianAxisE.Y),position.getLocation().getPoint().get(CartasianAxisE.Z));
@@ -66,28 +66,39 @@ public class AdvancedFace extends FaceSurface {
         double distanceNM = MathCalculations.distanceOfProjectionVectorAtoVecorB(directionVektor,endPoint)-MathCalculations.distanceOfProjectionVectorAtoVecorB(directionVektor,startPoint);
         double upRadius = 0;
         int countLayers = 0; // count Layer if it is a surface like a ball // used in render Spherical Surface
-
+        double cateade = Math.asin(semiAngle)*distanceN;// Math.sqrt(distanceN*distanceN-distanceNM*distanceNM);
 
         if (distanceNM>0) {
-            upRadius = radius + Math.sqrt(distanceN*distanceN-distanceNM*distanceNM);//(Math.asin(semiAngle) * distanceN);
+            upRadius = radius + cateade;//(Math.asin(semiAngle) * distanceN);
             StepConfig.printMessage(upRadius+" = Upradius Plus");
             startPoint = startPoint;
 
-            if ((MathCalculations.distanceToPoint(MathCalculations.vectorAddition(positionPoint,maxVektor))>MathCalculations.distanceToPoint(MathCalculations.vectorAddition(vectorAddition(positionPoint,maxVektor),axisVector))||
-                    (MathCalculations.distanceToPoint(positionPoint)>MathCalculations.distanceToPoint(MathCalculations.vectorAddition(positionPoint,axisVector))))){
-                upRadius = radius - Math.sqrt(distanceN*distanceN-distanceNM*distanceNM);
+            if ((MathCalculations.distanceToPoint(positionPoint)>MathCalculations.distanceToPoint(MathCalculations.vectorAddition(positionPoint,axisVector)))){
+                cateade = Math.sqrt(distanceN*distanceN-distanceNM*distanceNM);
+                upRadius = radius - cateade;
                 CreateAZylinderWithTriangles( position,-1, StepConfig.COUNTTRIANGLEPERLAYER, upRadius,radius,endPoint,startPoint, countLayers);
-            }else {
+            }else if (radius - cateade > 0){
+                upRadius = (radius - cateade);
+                CreateAZylinderWithTriangles( position,-1, StepConfig.COUNTTRIANGLEPERLAYER, upRadius ,radius,startPoint,endPoint, countLayers);
+                StepConfig.printMessage("NORMAL PRN"+ radius+" up = "+ upRadius);
+            }
+            else {
+                cateade = Math.sqrt(distanceN*distanceN-distanceNM*distanceNM);
+                upRadius = (radius + cateade);
                 CreateAZylinderWithTriangles( position,1, StepConfig.COUNTTRIANGLEPERLAYER, radius,upRadius ,startPoint,endPoint, countLayers);
+                StepConfig.printMessage("NORMAL PRN"+ radius+" up = "+ upRadius);
             }
         }else {
-            upRadius = radius - Math.sqrt(distanceN*distanceN-distanceNM*distanceNM);
+
+
             radius = radius;
-            if ((MathCalculations.distanceToPoint(MathCalculations.vectorAddition(positionPoint,maxVektor))>MathCalculations.distanceToPoint(MathCalculations.vectorAddition(vectorAddition(positionPoint,maxVektor),axisVector))||
-                    (MathCalculations.distanceToPoint(positionPoint)>MathCalculations.distanceToPoint(MathCalculations.vectorAddition(positionPoint,axisVector))))){
-                upRadius = radius + Math.sqrt(distanceN*distanceN-distanceNM*distanceNM);
-                CreateAZylinderWithTriangles( position,-1, StepConfig.COUNTTRIANGLEPERLAYER, upRadius,radius,startPoint,MathCalculations.inverseVector(endPoint), countLayers);
+            if (MathCalculations.distanceToPoint(positionPoint)>MathCalculations.distanceToPoint(MathCalculations.vectorAddition(positionPoint,axisVector))){
+               cateade=  Math.sqrt(distanceN*distanceN-distanceNM*distanceNM);
+                upRadius = radius + cateade;
+                CreateAZylinderWithTriangles( position,-1, StepConfig.COUNTTRIANGLEPERLAYER, upRadius,radius,startPoint,endPoint, countLayers);
             }else {
+                //cateade=  Math.sqrt(distanceN*distanceN-distanceNM*distanceNM);
+                upRadius = radius - cateade;
                 CreateAZylinderWithTriangles( position,1, StepConfig.COUNTTRIANGLEPERLAYER, upRadius,radius,endPoint,startPoint, countLayers);
             }
             StepConfig.printMessage(radius+" = radius");
