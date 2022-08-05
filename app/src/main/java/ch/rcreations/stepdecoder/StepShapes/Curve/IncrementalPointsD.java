@@ -17,4 +17,9 @@ package ch.rcreations.stepdecoder.StepShapes.Curve;
  * @param z z Axis
  */
 public record IncrementalPointsD(double x,double y ,double z) {
+
+    @Override
+    public String toString() {
+        return "X= "+x() + " Y= "+ y()+ " Z "+z() ;
+    }
 }

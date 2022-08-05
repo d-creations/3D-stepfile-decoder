@@ -18,10 +18,7 @@ import ch.rcreations.stepdecoder.StepShapes.FaceBoundLoop.FaceOuterBound;
 import ch.rcreations.stepdecoder.StepShapes.Point.CartesianPoint;
 import ch.rcreations.stepdecoder.StepShapes.ProductDefinitionFormat.ProductDefinitionFormation;
 import ch.rcreations.stepdecoder.StepShapes.ProductDefinitionFormat.ProductDefinitionFormationWithSpecifiedSource;
-import ch.rcreations.stepdecoder.StepShapes.Surfaces.CylindricalSurface;
-import ch.rcreations.stepdecoder.StepShapes.Surfaces.Plane;
-import ch.rcreations.stepdecoder.StepShapes.Surfaces.SphericalSurface;
-import ch.rcreations.stepdecoder.StepShapes.Surfaces.Surface;
+import ch.rcreations.stepdecoder.StepShapes.Surfaces.*;
 import ch.rcreations.stepdecoder.StepShapes.Vertex.SimpleVertexD;
 import ch.rcreations.stepdecoder.StepShapes.Vertex.Vertex;
 import ch.rcreations.stepdecoder.StepShapes.Vertex.VertexPoint;
@@ -400,6 +397,20 @@ public class AP242Decoder {
                 }
                 PreferredSurfaceCurveRepresentation representation = getPreferredEnum(numbers[numbers.length - 1].replace("#", ""));
                 return new SurfaceCurve(name, (Curve) curve, items, representation,lineNumber);
+            }
+            case "CONICAL_SURFACE" -> {
+                int PositionCodeLineNumber = Integer.parseInt(numbers[1].replace("#", ""));
+                double radius = Double.parseDouble(numbers[2].replace("#", ""));
+                double angle = Double.parseDouble(numbers[3].replace("#", ""));
+                String PositionCode = dataMap.get(PositionCodeLineNumber);
+                try {
+                    Axis2Placement3D position = (Axis2Placement3D) calculateDecoding(PositionCode,PositionCodeLineNumber);//vertex
+                    return new ConicalSurface(name, position,radius,angle,lineNumber);
+                } catch (Exception e) {
+                    StepConfig.printError("CIRCLE Construction Failed");
+                    StepConfig.printError(e.getMessage());
+                    return null;
+                }
             }
 
             default -> {

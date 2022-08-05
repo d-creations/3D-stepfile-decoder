@@ -14,7 +14,7 @@ Decodes 3D step files ISO 10303 (AP) to a Mesh view of Javafx
 ## Next functions 
 - Cone
 
-## include to Project 
+## include toother  Project 
 use jar file 
 
 ## How to use
