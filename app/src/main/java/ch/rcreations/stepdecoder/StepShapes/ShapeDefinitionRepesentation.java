@@ -16,8 +16,12 @@ public class ShapeDefinitionRepesentation extends StepShapes{
     @Override
     public TreeItem<StepShapes> getTreeItem() {
         TreeItem<StepShapes> treeItem = new TreeItem<>(this);
-        treeItem.getChildren().add(PRODUCT_DEFINITION_SHAPE.getTreeItem());
-        treeItem.getChildren().add(ADVANCED_BREP_SHAPE_REPRESENTATION.getTreeItem());
+        if (PRODUCT_DEFINITION_SHAPE != null) {
+            treeItem.getChildren().add(PRODUCT_DEFINITION_SHAPE.getTreeItem());
+        }
+        if (ADVANCED_BREP_SHAPE_REPRESENTATION != null) {
+            treeItem.getChildren().add(ADVANCED_BREP_SHAPE_REPRESENTATION.getTreeItem());
+        }
         return treeItem;
     }
 }

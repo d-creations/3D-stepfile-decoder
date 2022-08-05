@@ -21,9 +21,11 @@ import java.util.*;
 
 import static ch.rcreations.stepdecoder.Config.MathCalculations.*;
 import static ch.rcreations.stepdecoder.Config.MathCalculations.distanceOfProjectionVectorAtoVecorB;
+import static java.lang.Double.NaN;
 
 public class AdvancedFace extends FaceSurface {
 
+    static int  count = 0;
 
     public AdvancedFace(String name, Set<FaceBound> setOfFaces, Surface faceGeometrie, Boolean sameSense, int lineNumber) {
         super(name, setOfFaces, faceGeometrie, sameSense, lineNumber, AP242Code.ADVANCED_FACE);
@@ -32,8 +34,7 @@ public class AdvancedFace extends FaceSurface {
         preferencesMapList.add(preferencesMap);
         switch (faceGeometrie.getTyp()) {
             case PLANE -> renderPlan();
-           case SPHERICAL_SURFACE ->
-                    renderSphericalSurface(((SphericalSurface) faceGeometrie).getRadius(), ((SphericalSurface) faceGeometrie).getPosition());
+           case SPHERICAL_SURFACE ->renderSphericalSurface(((SphericalSurface) faceGeometrie).getRadius(), ((SphericalSurface) faceGeometrie).getPosition());
             case CYLINDRICAL_SURFACE -> {
                 for (FaceBound faceB : getFaceBound()) {
                     for (Edge edge : faceB.getEdgeLoop().getOrientedEdges()) {
@@ -56,66 +57,75 @@ public class AdvancedFace extends FaceSurface {
         Direction axis = position.getAxis();
         Direction firstDirectionE = position.getFirstDirection();
         Direction secondDirectionE = position.getSecondDirection();
-        IncrementalPointsD maxVector = new IncrementalPointsD(999,999,999);
         IncrementalPointsD axisVector = new IncrementalPointsD(axis.getDirectionRatios().get(0),axis.getDirectionRatios().get(1),axis.getDirectionRatios().get(2));
         IncrementalPointsD directionVektor = new IncrementalPointsD(firstDirectionE.getDirectionRatios().get(0),firstDirectionE.getDirectionRatios().get(1),firstDirectionE.getDirectionRatios().get(2));
+        IncrementalPointsD directionSecondVektor = new IncrementalPointsD(secondDirectionE.getDirectionRatios().get(0),secondDirectionE.getDirectionRatios().get(1),secondDirectionE.getDirectionRatios().get(2));
         IncrementalPointsD positionPoint = new IncrementalPointsD(position.getLocation().getPoint().get(CartasianAxisE.X),position.getLocation().getPoint().get(CartasianAxisE.Y),position.getLocation().getPoint().get(CartasianAxisE.Z));
         IncrementalPointsD startPoint = new IncrementalPointsD(edge.getStartX(), edge.getStartY(), edge.getStartZ());
         IncrementalPointsD endPoint = new IncrementalPointsD(edge.getEndX(), edge.getEndY(), edge.getEndZ());
         double distanceN = MathCalculations.getDistanceBetweenPoints(endPoint,startPoint);
-        double distanceNM = MathCalculations.distanceOfProjectionVectorAtoVecorB(directionVektor,endPoint)-MathCalculations.distanceOfProjectionVectorAtoVecorB(directionVektor,startPoint);
-        double upRadius = 0;
         int countLayers = 0; // count Layer if it is a surface like a ball // used in render Spherical Surface
-        double cateade = Math.asin(semiAngle)*distanceN;// Math.sqrt(distanceN*distanceN-distanceNM*distanceNM);
+        IncrementalPointsD PAvector = MathCalculations.vectorSubstraction(startPoint,positionPoint);
+        double distanceToPAvector = MathCalculations.distanceToPoint(PAvector);
+        double lStart = MathCalculations.distanceOfProjectionVectorAtoVecorB(axisVector,PAvector);
+        PAvector = MathCalculations.vectorSubstraction(endPoint,positionPoint);
+        double distanceToPBvector = MathCalculations.distanceToPoint(PAvector);
+        double lEnd = MathCalculations.distanceOfProjectionVectorAtoVecorB(axisVector,PAvector);
+        Double PAl = Math.sqrt(distanceToPAvector*distanceToPAvector-lStart*lStart);
+        Double PBl = Math.sqrt(distanceToPBvector*distanceToPAvector-lStart*lStart);
+        double direction = distanceToPoint(vectorAddition(positionPoint,directionVektor))-distanceToPoint(positionPoint);
+        double directionAxis = distanceToPoint(vectorAddition(positionPoint,axisVector))-distanceToPoint(positionPoint);
+        double directionSecond = distanceToPoint(vectorAddition(positionPoint,directionSecondVektor))-distanceToPoint(positionPoint);
+        if (Math.abs(lStart-lEnd) > 0.1){
+            count++;
+            PAl = PAl.isNaN() ? 99999999 : PAl;
+            PBl = PBl.isNaN() ? 99999999 : PBl;
+            if(PAl < PBl){
 
-        if (distanceNM>0) {
-            upRadius = radius + cateade;//(Math.asin(semiAngle) * distanceN);
-            StepConfig.printMessage(upRadius+" = Upradius Plus");
-            startPoint = startPoint;
+                if (lStart<lEnd) {
+                    CreateAZylinderWithTriangles(position, 1, StepConfig.COUNTTRIANGLEPERLAYER, lStart, lEnd, startPoint, endPoint, countLayers);
+                }else {
 
-            if ((MathCalculations.distanceToPoint(positionPoint)>MathCalculations.distanceToPoint(MathCalculations.vectorAddition(positionPoint,axisVector)))){
-                cateade = Math.sqrt(distanceN*distanceN-distanceNM*distanceNM);
-                upRadius = radius - cateade;
-                CreateAZylinderWithTriangles( position,-1, StepConfig.COUNTTRIANGLEPERLAYER, upRadius,radius,endPoint,startPoint, countLayers);
-            }else if (radius - cateade > 0){
-                upRadius = (radius - cateade);
-                CreateAZylinderWithTriangles( position,-1, StepConfig.COUNTTRIANGLEPERLAYER, upRadius ,radius,startPoint,endPoint, countLayers);
-                StepConfig.printMessage("NORMAL PRN"+ radius+" up = "+ upRadius);
+                    if (distanceN < distanceToPBvector) {
+                        CreateAZylinderWithTriangles(position, -1, StepConfig.COUNTTRIANGLEPERLAYER, lStart, lEnd, endPoint, startPoint, countLayers);
+                    }else {
+                        CreateAZylinderWithTriangles(position, 1, StepConfig.COUNTTRIANGLEPERLAYER, lEnd, lStart, endPoint, startPoint, countLayers);
+                        CreateAZylinderWithTriangles(position, 1, StepConfig.COUNTTRIANGLEPERLAYER, lStart, lEnd, startPoint, endPoint, countLayers);
+                    }
+                }
+            } else if (PAl >= PBl){
+                if (lStart>lEnd) {
+                    if (distanceN < distanceToPBvector) {
+                        CreateAZylinderWithTriangles(position, -1, StepConfig.COUNTTRIANGLEPERLAYER, lStart, lEnd, endPoint, startPoint, countLayers);
+
+                    }else {
+                        CreateAZylinderWithTriangles(position, 1, StepConfig.COUNTTRIANGLEPERLAYER, lEnd, lStart, endPoint, startPoint, countLayers);
+
+                    }
+                }else {
+                        if ((directionAxis >=0 ) || distanceN < distanceToPAvector ) {
+                            CreateAZylinderWithTriangles(position, 1, StepConfig.COUNTTRIANGLEPERLAYER, lStart, lEnd, startPoint, endPoint, countLayers);
+
+                        }else {
+                            CreateAZylinderWithTriangles(position, -1, StepConfig.COUNTTRIANGLEPERLAYER, lEnd, lStart, startPoint, endPoint, countLayers);
+
+                        }
+
+                }
+
             }
-            else {
-                cateade = Math.sqrt(distanceN*distanceN-distanceNM*distanceNM);
-                upRadius = (radius + cateade);
-                CreateAZylinderWithTriangles( position,1, StepConfig.COUNTTRIANGLEPERLAYER, radius,upRadius ,startPoint,endPoint, countLayers);
-                StepConfig.printMessage("NORMAL PRN"+ radius+" up = "+ upRadius);
-            }
-        }else {
 
-
-            radius = radius;
-            if (MathCalculations.distanceToPoint(positionPoint)>MathCalculations.distanceToPoint(MathCalculations.vectorAddition(positionPoint,axisVector))){
-               cateade=  Math.sqrt(distanceN*distanceN-distanceNM*distanceNM);
-                upRadius = radius + cateade;
-                CreateAZylinderWithTriangles( position,-1, StepConfig.COUNTTRIANGLEPERLAYER, upRadius,radius,startPoint,endPoint, countLayers);
-            }else {
-                //cateade=  Math.sqrt(distanceN*distanceN-distanceNM*distanceNM);
-                upRadius = radius - cateade;
-                CreateAZylinderWithTriangles( position,1, StepConfig.COUNTTRIANGLEPERLAYER, upRadius,radius,endPoint,startPoint, countLayers);
-            }
-            StepConfig.printMessage(radius+" = radius");
-            StepConfig.printMessage(upRadius+" = Upradius Minus");
         }
-        StepConfig.printMessage(radius+"");
           }
 
     private void renderACylinder(double radius, Axis2Placement3D position, Edge edge) {
-        // Place the Axis
-        Direction axis = position.getAxis();
-        Direction firstDirectionE = position.getFirstDirection();
-        Direction secondDirectionE = position.getSecondDirection();
-        IncrementalPointsD startPoint = getCoordinatesInNewBasis(edge.getStartX(), edge.getStartY(), edge.getStartZ(), firstDirectionE, secondDirectionE, axis);
-        IncrementalPointsD endPoint = getCoordinatesInNewBasis(edge.getEndX(), edge.getEndY(), edge.getEndZ(), firstDirectionE, secondDirectionE, axis);
-        int countLayers = 0; // count Layer if it is a surface like a ball // used in render Spherical Surface
-        CreateAZylinderWithTriangles( position,1, StepConfig.COUNTTRIANGLEPERLAYER, radius, radius, startPoint, endPoint, countLayers);
+        IncrementalPointsD startPoint = new IncrementalPointsD(edge.getStartX(), edge.getStartY(), edge.getStartZ());
+        IncrementalPointsD endPoint = new IncrementalPointsD(edge.getEndX(), edge.getEndY(), edge.getEndZ());
+        if (true) {
+            CreateAZylinderWithTriangles(position, -1, StepConfig.COUNTTRIANGLEPERLAYER, radius, radius, startPoint, endPoint, 0);
+        }else {
+            CreateAZylinderWithTriangles(position, -1, StepConfig.COUNTTRIANGLEPERLAYER, radius, radius, startPoint, endPoint, 0);
+        }
     }
 
     /**
@@ -285,21 +295,9 @@ public class AdvancedFace extends FaceSurface {
             IncrementalPointsD Basis2N = getCoordinatesInNewBasis(x2, y2, z2, firstDirectionE, secondDirectionE, axis);
             IncrementalPointsD Basis3N = getCoordinatesInNewBasis(x3, y3, z3, firstDirectionE, secondDirectionE, axis);
             IncrementalPointsD Basis4N = getCoordinatesInNewBasis(x4, y4, z4, firstDirectionE, secondDirectionE, axis);
-            double x1BasisN = Basis1N.x();
-            double y1BasisN = Basis1N.y();
-            double z1BasisN = Basis1N.z();
-            double x2BasisN = Basis2N.x();
-            double y2BasisN = Basis2N.y();
-            double z2BasisN = Basis2N.z();
-            double x3BasisN = Basis3N.x();
-            double y3BasisN = Basis3N.y();
-            double z3BasisN = Basis3N.z();
-            double x4BasisN = Basis4N.x();
-            double y4BasisN = Basis4N.y();
-            double z4BasisN = Basis4N.z();
-            drawTriangle(z1BasisN, z2BasisN, z3BasisN, x1BasisN, y1BasisN, x2BasisN, y2BasisN, x3BasisN, y3BasisN);
+            drawTriangle(Basis1N.z(), Basis2N.z(), Basis3N.z(), Basis1N.x(), Basis1N.y(), Basis2N.x(), Basis2N.y(), Basis3N.x(), Basis3N.y());
             // Triangle Opposite D B A
-            drawTriangle(z3BasisN, z1BasisN, z4BasisN, x3BasisN, y3BasisN, x1BasisN, y1BasisN, x4BasisN, y4BasisN);
+            drawTriangle(Basis3N.z(), Basis1N.z(),Basis4N.z(), Basis3N.x(), Basis3N.y(), Basis1N.x(), Basis1N.y(), Basis4N.x(), Basis4N.y());
             }
         }
     }

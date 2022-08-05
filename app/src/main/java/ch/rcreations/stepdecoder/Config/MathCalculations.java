@@ -60,4 +60,8 @@ public class MathCalculations {
     public static IncrementalPointsD vectorAddition(IncrementalPointsD positionPoint, IncrementalPointsD axisVector) {
         return new IncrementalPointsD(positionPoint.x()+axisVector.x(),positionPoint.y()+axisVector.y(),positionPoint.z()+axisVector.z());
     }
+
+    public static IncrementalPointsD vectorSubstraction(IncrementalPointsD startPoint, IncrementalPointsD positionPoint) {
+        return new IncrementalPointsD(startPoint.x()-positionPoint.x(),startPoint.y()-positionPoint.y(),startPoint.z()-positionPoint.z());
+    }
 }
