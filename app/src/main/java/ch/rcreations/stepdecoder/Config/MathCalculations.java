@@ -64,4 +64,9 @@ public class MathCalculations {
     public static IncrementalPointsD vectorSubstraction(IncrementalPointsD startPoint, IncrementalPointsD positionPoint) {
         return new IncrementalPointsD(startPoint.x() - positionPoint.x(), startPoint.y() - positionPoint.y(), startPoint.z() - positionPoint.z());
     }
+
+    public static double getLambdaBonVector(IncrementalPointsD positionPoint, IncrementalPointsD axisVector, IncrementalPointsD startPoint) {
+        //-BA  = BA
+      return   ((-positionPoint.x()+startPoint.x())*axisVector.x()+(-positionPoint.y()+startPoint.y())*axisVector.y()+(-positionPoint.z()+startPoint.z())*axisVector.z())/-((-axisVector.x()*axisVector.x())+(-axisVector.y()*axisVector.y())+(-axisVector.z()*axisVector.z()));
+    }
 }

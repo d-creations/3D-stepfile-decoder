@@ -31,7 +31,7 @@ public class Example extends Application{
     public static void main(String[] args) throws URISyntaxException {
         // load a step-file
         ClassLoader classLoader = Example.class.getClassLoader();
-        URL resource = classLoader.getResource("Teil1.STEP");
+        URL resource = classLoader.getResource("Cone3.step");
         assert resource != null;
         File file = new File(resource.toURI());
         try {

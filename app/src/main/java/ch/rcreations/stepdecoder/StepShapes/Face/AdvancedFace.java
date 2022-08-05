@@ -70,46 +70,81 @@ public class AdvancedFace extends FaceSurface {
         double lEnd = MathCalculations.distanceOfProjectionVectorAtoVecorB(axisVector,PAVector);
         Double PAl = Math.sqrt(distanceToPAVector*distanceToPAVector-lStart*lStart);
         Double PBl = Math.sqrt(distanceToPBvector*distanceToPAVector-lStart*lStart);
-        double direction = distanceToPoint(vectorAddition(positionPoint,directionVektor))-distanceToPoint(positionPoint);
+        double directionv = distanceToPoint(vectorAddition(positionPoint,directionVektor))-distanceToPoint(positionPoint);
         double directionAxis = distanceToPoint(vectorAddition(positionPoint,axisVector))-distanceToPoint(positionPoint);
         double directionSecond = distanceToPoint(vectorAddition(positionPoint,directionSecondVektor))-distanceToPoint(positionPoint);
+        double lambda = MathCalculations.getLambdaBonVector(positionPoint,axisVector,endPoint);
+        double lambdaStart = MathCalculations.getLambdaBonVector(positionPoint,axisVector,startPoint);
+        lambda = (Math.abs(lambda) < 0.02) ? 0 : lambda;
+        lambdaStart = (Math.abs(lambdaStart) < 0.02) ? 0 : lambdaStart;
+        int direction = ((lambda)-lambdaStart >= 0) ? 1 : -1;
+        if (Math.abs(lambdaStart)>0.5)System.out.println("Lambda ALARM= "+ lambda);
         if (Math.abs(lStart-lEnd) > 0.1){
             PAl = PAl.isNaN() ? 99999999 : PAl;
             PBl = PBl.isNaN() ? 99999999 : PBl;
+            if (lStart<lEnd) {
+                if (direction<0) {
+                   CreateAZylinderWithTriangles(position, direction, StepConfig.COUNTTRIANGLEPERLAYER,lEnd,  lStart, startPoint, endPoint, 0);
+                }else {
+                    if (distanceN>0 ) {
+                        System.out.println("+"+ distanceToPoint());
+                        CreateAZylinderWithTriangles(position, direction, StepConfig.COUNTTRIANGLEPERLAYER, lStart, lEnd, startPoint, endPoint, 0);
+                    }else {
+                      //  CreateAZylinderWithTriangles(position, direction, StepConfig.COUNTTRIANGLEPERLAYER, lStart, lEnd, startPoint, endPoint, 0);
+                    }
+                }
+            }
+            else if (lStart>=lEnd) {
+                if (direction < 0) {
+                    if(PAl < PBl && distanceToPAVector< distanceToPBvector ) {
+                        CreateAZylinderWithTriangles(position, -direction, StepConfig.COUNTTRIANGLEPERLAYER, lStart, lEnd, startPoint,endPoint , 0);
+                    }else {
+                        CreateAZylinderWithTriangles(position, direction, StepConfig.COUNTTRIANGLEPERLAYER, lStart, lEnd, endPoint ,startPoint, 0);
+
+                    }
+                   // CreateAZylinderWithTriangles(position, direction, StepConfig.COUNTTRIANGLEPERLAYER, lStart, lEnd, endPoint ,startPoint, 0);
+
+                }else {
+                    CreateAZylinderWithTriangles(position, direction, StepConfig.COUNTTRIANGLEPERLAYER,lEnd, lStart, endPoint ,startPoint, 0);
+                }
+            }
+/*
             if(PAl < PBl){
                 if (lStart<lEnd) {
-                    CreateAZylinderWithTriangles(position, 1, StepConfig.COUNTTRIANGLEPERLAYER, lStart, lEnd, startPoint, endPoint, countLayers);
+                    CreateAZylinderWithTriangles(position, direction, StepConfig.COUNTTRIANGLEPERLAYER, lStart, lEnd, startPoint, endPoint, countLayers);
                 }else {
-
                     if (distanceN < distanceToPBvector) {
-                        CreateAZylinderWithTriangles(position, -1, StepConfig.COUNTTRIANGLEPERLAYER, lStart, lEnd, endPoint, startPoint, countLayers);
+                      CreateAZylinderWithTriangles(position, direction, StepConfig.COUNTTRIANGLEPERLAYER, lStart, lEnd, endPoint, startPoint, countLayers);
                     }else {
-                        CreateAZylinderWithTriangles(position, 1, StepConfig.COUNTTRIANGLEPERLAYER, lEnd, lStart, endPoint, startPoint, countLayers);
-                        CreateAZylinderWithTriangles(position, 1, StepConfig.COUNTTRIANGLEPERLAYER, lStart, lEnd, startPoint, endPoint, countLayers);
+
+                        System.out.println("Lambda -= " +lambdaStart + "Lambda end" + lambda);
+                        CreateAZylinderWithTriangles(position, direction, StepConfig.COUNTTRIANGLEPERLAYER, lEnd, lStart, endPoint, startPoint, countLayers);
+                        CreateAZylinderWithTriangles(position, direction, StepConfig.COUNTTRIANGLEPERLAYER, lStart, lEnd, startPoint, endPoint, countLayers);
+
                     }
                 }
             } else if (PAl >= PBl){
                 if (lStart>lEnd) {
                     if (distanceN < distanceToPBvector) {
-                        CreateAZylinderWithTriangles(position, -1, StepConfig.COUNTTRIANGLEPERLAYER, lStart, lEnd, endPoint, startPoint, countLayers);
+                        CreateAZylinderWithTriangles(position, direction, StepConfig.COUNTTRIANGLEPERLAYER, lStart, lEnd, endPoint, startPoint, countLayers);
 
                     }else {
-                        CreateAZylinderWithTriangles(position, 1, StepConfig.COUNTTRIANGLEPERLAYER, lEnd, lStart, endPoint, startPoint, countLayers);
+                        CreateAZylinderWithTriangles(position, direction, StepConfig.COUNTTRIANGLEPERLAYER, lEnd, lStart, endPoint, startPoint, countLayers);
 
                     }
                 }else {
                         if ((directionAxis >=0 ) || distanceN < distanceToPAVector ) {
-                            CreateAZylinderWithTriangles(position, 1, StepConfig.COUNTTRIANGLEPERLAYER, lStart, lEnd, startPoint, endPoint, countLayers);
+                            CreateAZylinderWithTriangles(position, direction, StepConfig.COUNTTRIANGLEPERLAYER, lStart, lEnd, startPoint, endPoint, countLayers);
 
                         }else {
-                            CreateAZylinderWithTriangles(position, -1, StepConfig.COUNTTRIANGLEPERLAYER, lEnd, lStart, startPoint, endPoint, countLayers);
+                            CreateAZylinderWithTriangles(position, direction, StepConfig.COUNTTRIANGLEPERLAYER, lEnd, lStart, startPoint, endPoint, countLayers);
 
                         }
 
                 }
 
             }
-
+*/
         }
           }
 
