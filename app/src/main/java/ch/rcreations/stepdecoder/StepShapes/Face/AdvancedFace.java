@@ -7,6 +7,7 @@ import ch.rcreations.stepdecoder.StepShapes.Axis2Placement3D;
 import ch.rcreations.stepdecoder.StepShapes.Curve.IncrementalPointsD;
 import ch.rcreations.stepdecoder.StepShapes.Direction;
 import ch.rcreations.stepdecoder.StepShapes.FaceBoundLoop.Edge.Edge;
+import ch.rcreations.stepdecoder.StepShapes.FaceBoundLoop.Edge.EdgeCurve;
 import ch.rcreations.stepdecoder.StepShapes.FaceBoundLoop.Edge.OrientedEdge;
 import ch.rcreations.stepdecoder.StepShapes.FaceBoundLoop.FaceBound;
 import ch.rcreations.stepdecoder.StepShapes.Point.CartasianAxisE;
@@ -41,15 +42,15 @@ public class AdvancedFace extends FaceSurface {
             }
             case CONICAL_SURFACE -> {
                 for (FaceBound faceB : getFaceBound()) {
-                    for (Edge edge : faceB.getEdgeLoop().getOrientedEdges()) {
-                        renderACone(((ConicalSurface)faceGeometrie).getPosition(),((ConicalSurface)faceGeometrie).getRadius(),((ConicalSurface)faceGeometrie).getSemiAngle(),edge);
+                    for (OrientedEdge edge : faceB.getEdgeLoop().getOrientedEdges()) {
+                        renderACone(((ConicalSurface)faceGeometrie).getPosition(),((ConicalSurface)faceGeometrie).getRadius(),((ConicalSurface)faceGeometrie).getSemiAngle(), edge);
                     }
                 }
             }
         }
     }
 
-    private void renderACone(Axis2Placement3D position,double radius,double semiAngle,Edge edge) {
+    private void renderACone(Axis2Placement3D position, double radius, double semiAngle, OrientedEdge edge) {
         // Place the Axis
         Direction axis = position.getAxis();
         Direction firstDirectionE = position.getFirstDirection();
@@ -77,14 +78,26 @@ public class AdvancedFace extends FaceSurface {
         double lambdaStart = MathCalculations.getLambdaBonVector(positionPoint,axisVector,startPoint);
         lambda = (Math.abs(lambda) < 0.02) ? 0 : lambda;
         lambdaStart = (Math.abs(lambdaStart) < 0.02) ? 0 : lambdaStart;
-        int direction = ((lambda)-lambdaStart >= 0) ? 1 : -1;
-        if (Math.abs(lambdaStart)>0.5)System.out.println("Lambda ALARM= "+ lambda);
+        System.out.println("lamba = "+lambda);
+        System.out.println("lambdaStart = "+lambdaStart);
+        System.out.println("Same Sence = " + sameSense);
+        System.out.println("Orientagen = " + edge.getOrientation());
+        boolean direction2 = (((lambda > 0.02) && (sameSense))|| (!(lambda < 0.02) && (!sameSense)) ) ? true : false;
+        int direction = (direction2 && edge.getOrientation()) ? 1 : -1;
+        if(Math.abs(lambda)>0.02) {
+            if (Math.abs(lambdaStart-lambda)>0.5) {
+                CreateAZylinderWithTriangles(position, direction, StepConfig.COUNTTRIANGLEPERLAYER,lEnd,lStart, startPoint,endPoint, 0);
+            } else {
+            }
+        }
+        //if (Math.abs(lambdaStart)>0.5)System.out.println("Lambda ALARM= "+ lambda);
+
+        /*
         if (Math.abs(lStart-lEnd) > 0.1){
             PAl = PAl.isNaN() ? 99999999 : PAl;
             PBl = PBl.isNaN() ? 99999999 : PBl;
             if (lStart<lEnd) {
                 if (direction<0) {
-                   CreateAZylinderWithTriangles(position, direction, StepConfig.COUNTTRIANGLEPERLAYER,lEnd,  lStart, startPoint, endPoint, 0);
                 }else {
                     if (distanceN>0 ) {
                         System.out.println("+"+ distanceToPoint());
@@ -145,7 +158,7 @@ public class AdvancedFace extends FaceSurface {
 
             }
 */
-        }
+
           }
 
     private void renderACylinder(double radius, Axis2Placement3D position, Edge edge) {

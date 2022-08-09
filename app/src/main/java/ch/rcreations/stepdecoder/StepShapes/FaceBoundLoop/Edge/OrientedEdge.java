@@ -36,4 +36,8 @@ public class OrientedEdge extends Edge {
     public EdgeCurve getEdgeElement() {
         return edgeElement;
     }
+
+    public Boolean getOrientation() {
+        return orientation;
+    }
 }
