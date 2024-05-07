@@ -1,3 +1,8 @@
+# NOTE
+The project is still under construction and currently suspended.
+This project was one of my first java projects as an experiment.
+
+
 # 3D-step-file-decoder
 Decodes 3D step files ISO 10303 (AP) to a Mesh view of Javafx
 
