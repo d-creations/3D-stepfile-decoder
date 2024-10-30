@@ -1,6 +1,6 @@
 # NOTE
 The project is still under construction and currently suspended.
-This project was one of my first java projects as an experiment.
+This project was one of my first try with javafx projects as an experiment.
 
 
 # 3D-step-file-decoder
